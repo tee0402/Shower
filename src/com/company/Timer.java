@@ -8,9 +8,6 @@ public class Timer {
 	private static final double decrement = 200;
 	private static final double lowerBound = 2000;
 	
-	public Timer() {
-	}
-	
 	public void start() {
 		start = System.currentTimeMillis();
 	}

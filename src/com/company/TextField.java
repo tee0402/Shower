@@ -1,24 +1,21 @@
 package com.company;
 
 import javax.swing.*;
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 
 public class TextField extends JFrame implements ActionListener {
 	private static JTextField textField;
-	private static JLabel label1;
-	private static JLabel label2;
-	public static String name;
-	public static boolean done = false;
+  public static String name;
+	public static boolean done;
 	
 	public TextField() {
 		super("You got a top 10 high score!");
 		
 		done = false;
-		
-		label1 = new JLabel("Please enter your name:");
-		label2 = new JLabel("Press 'Enter' when you're done");
+
+    JLabel label1 = new JLabel("Please enter your name:");
+    JLabel label2 = new JLabel("Press 'Enter' when you're done");
 		textField = new JTextField(30);
 		textField.addActionListener(this);
 		
