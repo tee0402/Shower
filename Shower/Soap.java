@@ -1,4 +1,4 @@
-import java.util.*;
+import java.util.Random;
 
 public class Soap {
 	private static EZImage soap;
@@ -12,9 +12,10 @@ public class Soap {
 		if (random.nextInt(limit) <= threshold) {
       int x = 0;
       boolean soapXGenerated = false;
+      int windowWidth = EZ.getWindowWidth();
       while (!soapXGenerated) {
-        x = random.nextInt(EZ.getWindowWidth() - 100) + 50;
-        if (x < EZ.getWindowWidth() / 2 - 200 || x > EZ.getWindowWidth() / 2 + 200) {
+        x = random.nextInt(windowWidth - 100) + 50;
+        if (x < windowWidth / 2 - 200 || x > windowWidth / 2 + 200) {
           soapXGenerated = true;
         }
       }

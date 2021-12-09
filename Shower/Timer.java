@@ -1,22 +1,20 @@
-import java.lang.*;
-
 public class Timer {
 	private long start;
-	private static double timeLimit = 4000;
-	private static final double decrement = 200;
-	private static final double lowerBound = 2000;
+	private static long timeLimit = 4000;
+	private static final long decrement = 200;
+	private static final long lowerBound = 2000;
 	
 	public void start() {
 		start = System.currentTimeMillis();
 	}
 	
-	public long elapsedTime() {
+	public long timeElapsed() {
 		long now = System.currentTimeMillis();
 		return now - start;
 	}
 	
 	public double timeLeft() {
-		return (timeLimit - (double)elapsedTime()) / 1000;
+		return (double) (timeLimit - timeElapsed()) / 1000;
 	}
 	
 	public void decrement() {
