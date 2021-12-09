@@ -1,5 +1,3 @@
-package com.company;
-
 /*
 Copyright (c) 6/23/2014, Dylan Kobayashi
 Version: 4/14/2015
