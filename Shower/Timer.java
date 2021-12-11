@@ -23,7 +23,7 @@ public class Timer {
 		}
 	}
 	
-	public void reset() {
+	public void resetDecrement() {
 		timeLimit = 4000;
 	}
 }

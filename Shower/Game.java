@@ -9,10 +9,11 @@ import java.util.Scanner;
 public class Game {
   private final int windowWidth = 1915;
   private final int windowHeight = 995;
-  private boolean start = true;
-  private boolean menu = false;
-  private boolean end = false;
-  private boolean highScores = false;
+  private boolean startSceneShowing = true;
+  private boolean menuSceneShowing = false;
+  private boolean gameSceneShowing = false;
+  private boolean endSceneShowing = false;
+  private boolean highScoreSceneShowing = false;
   private boolean muted;
   private int score;
   private int highScore;
@@ -49,7 +50,7 @@ public class Game {
       namesFile = new File("names.txt");
       namesFile.createNewFile();
       Scanner sc = new Scanner(namesFile);
-      while (sc.hasNext()) {
+      while (sc.hasNextLine()) {
         alNames.add(sc.nextLine());
       }
       sc.close();
@@ -57,37 +58,34 @@ public class Game {
       highScoresFile = new File("highscores.txt");
       highScoresFile.createNewFile();
       sc = new Scanner(highScoresFile);
-      while (sc.hasNext()) {
+      while (sc.hasNextInt()) {
         alHighScores.add(sc.nextInt());
       }
       sc.close();
-      if (alHighScores.size() == 0) {
-        alHighScores.add(0);
-        highScore = 0;
-      } else {
-        highScore = alHighScores.get(0);
-      }
+      highScore = alHighScores.size() == 0 ? 0 : alHighScores.get(0);
       //creates a new scanner that reads mute.txt
       muteFile = new File("mute.txt");
       muteFile.createNewFile();
       sc = new Scanner(muteFile);
-      muted = sc.hasNext() && sc.nextInt() == 1;
+      muted = sc.hasNextInt() && sc.nextInt() == 1;
       sc.close();
     } catch (IOException e) {
       System.out.println("Error scanning save files");
     }
 
     while (true) {
-      if (start) {
+      if (startSceneShowing) {
         startScene();
-      } else if (menu) {
+      } else if (menuSceneShowing) {
         menuScene();
-      } else if (!end && !highScores) {
+      } else if (gameSceneShowing) {
         gameScene();
-      } else if (end) {
+      } else if (endSceneShowing) {
         endScene();
-      } else {
+      } else if (highScoreSceneShowing) {
         highScoreScene();
+      } else {
+        System.exit(0);
       }
     }
   }
@@ -139,29 +137,28 @@ public class Game {
     EZ.addText(windowWidth / 2, windowHeight / 2 + 150, "No", Color.white, 30);
     addCorrectMutedImage();
 
-    while (start) {
+    while (startSceneShowing) {
+      EZ.refreshScreen();
       int mouseX = EZInteraction.getXMouse();
       int mouseY = EZInteraction.getYMouse();
       if (EZInteraction.wasMouseLeftButtonPressed()) {
         if (yesRect.isPointInElement(mouseX, mouseY)) {
-          menu = true;								//set menu to true and start to false
-          start = false;
-          if (!muted) {								//if it is not muted, play beep3
+          startSceneShowing = false;
+          menuSceneShowing = true;
+          if (!muted) {
             Beep3.play();
           }
         } else if (noRect.isPointInElement(mouseX, mouseY)) {
-          System.exit(0);
+          startSceneShowing = false;
         } else {
           checkIfMutedImageClicked(mouseX, mouseY, null);
         }
       }
-      EZ.refreshScreen();
     }
   }
 
   private void menuScene() {
     EZ.removeAllEZElements();
-    endSong.stop();
     if (!muted) {
       titleMusic.play();
     }
@@ -181,46 +178,43 @@ public class Game {
     EZ.addImage("orElse.png", 1110, 570);
     addCorrectMutedImage();
 
-    while (menu) {
+    while (menuSceneShowing) {
+      EZ.refreshScreen();
       int mouseX = EZInteraction.getXMouse();
       int mouseY = EZInteraction.getYMouse();
-      //if startbutton is pressed, set menu to false and if it is not muted, play beep1
       if (EZInteraction.wasMouseLeftButtonPressed()) {
         if (StartButton.isPointInElement(mouseX, mouseY)) {
-          menu = false;
+          menuSceneShowing = false;
+          gameSceneShowing = true;
           if (!muted) {
             Beep1.play();
           }
+          titleMusic.stop();
         } else if (ExitButton.isPointInElement(mouseX, mouseY)) {	//if exitbutton is pressed, exit
-          System.exit(0);
+          menuSceneShowing = false;
         } else {
           checkIfMutedImageClicked(mouseX, mouseY, titleMusic);
         }
       }
-      EZ.refreshScreen();
     }
   }
 
   private void gameScene() {
     EZ.removeAllEZElements();
-    //if start, end, menu, and highscore is false, remove all elements, stop endsong and titlelmusic then play battlemusic
-    endSong.stop();
-    titleMusic.stop();
     if (!muted) {
       battleMusic.play();
     }
-    score = 0;
-    boolean wasdShowing = true;
-    timer.reset();
-    //add the images for the main game
     EZ.addImage("background.png", windowWidth / 2, windowHeight / 2);
     wasd = EZ.addImage("wasd.png", windowWidth / 2, 600);
+    score = 0;
     EZText scoreText = EZ.addText(windowWidth / 2, 80, String.valueOf(score), Color.black, 70);
     EZText soapText = EZ.addText(windowWidth / 2, 200, "", Color.red, 120);
     EZ.addText(windowWidth / 2, 130, "High: " + highScore, Color.black, 30);
     addCorrectMutedImage();
 
-    while (!end) {
+    timer.resetDecrement();
+    while (gameSceneShowing) {
+      EZ.refreshScreen();
       boolean dadsXGenerated = false;
       boolean dadsYGenerated = false;
       int dad1x, dad2x, dad3x, dad1y, dad2y, dad3y;
@@ -243,7 +237,6 @@ public class Game {
           dadsYGenerated = true;
         }
       }
-
       //place the 3 dads at the randomly generated coordinates
       dadAl1.addDad(new Dad("dad1.png", dad1x, dad1y));
       dadAl2.addDad(new Dad("dad2.png", dad2x, dad2y));
@@ -257,20 +250,12 @@ public class Game {
         soapText.setMsg("");
       }
 
-      if (wasdShowing) {
-        wasd.pullToFront();
-        wasdShowing = false;
-      }
       //start the timer and add a timer bar
       timer.start();
       timeRect = EZ.addRectangle(windowWidth / 2, 30, (int) (450 * timer.timeLeft()), 25, Color.black, true);
       scoreText.setMsg(String.valueOf(score));
 
       switch (randKid) {
-        //if case 1, creates a new kid1 and start the timer. then control the kid with wasd. if dad2 and dad3 is point in element, set end to true
-        //if kid1 is point in soap, start soapmode
-        //if kid1 is point in dad1, remove all dads and generate new ones and generate a new kid
-        //if kid1 is point in dad1, decrement timer
         case 1:
           kidGame("kid1.png", dadAl1, dadAl2, dadAl3);
           break;
@@ -284,7 +269,6 @@ public class Game {
 
       EZ.removeEZElement(timeRect);
       Soap.remove();
-      EZ.refreshScreen();
     }
     scoreSaved = false;
   }
@@ -293,81 +277,58 @@ public class Game {
     Kid kid = new Kid(kidImageFile, windowWidth / 2, 800);
 
     while (true) {
-      int mouseX = EZInteraction.getXMouse();
-      int mouseY = EZInteraction.getYMouse();
-
       timeRect.setWidth((int) (450 * timer.timeLeft()));
 
-      kid.ControlIt();
+      kid.controlIt();
 
-      if ((EZInteraction.isKeyDown('w') || EZInteraction.isKeyDown('a') || EZInteraction.isKeyDown('s') || EZInteraction.isKeyDown('d')) && wasd.isShowing()) {
+      if (wasd != null && (EZInteraction.isKeyDown('w') || EZInteraction.isKeyDown('a') || EZInteraction.isKeyDown('s') || EZInteraction.isKeyDown('d'))) {
         EZ.removeEZElement(wasd);
+        wasd = null;
       }
 
-      if (!Soap.soapMode && myDads.isPointInDads(kid)) {
+      int mouseX = EZInteraction.getXMouse();
+      int mouseY = EZInteraction.getYMouse();
+      double timeLeft = timer.timeLeft();
+      if (timeLeft <= 0 || otherDads1.isPointInDads(kid) || otherDads2.isPointInDads(kid)) {
         kid.remove();
         myDads.removeDads();
         otherDads1.removeDads();
         otherDads2.removeDads();
-        score++;
+        if (Soap.soapMode) {
+          Soap.soapMode = false;
+        } else {
+          gameSceneShowing = false;
+          endSceneShowing = true;
+          battleMusic.stop();
+        }
+        if (!muted && timeLeft > 0) {
+          Beep3.play();
+        }
+        break;
+      } else if (myDads.isPointInDads(kid)) {
+        kid.remove();
+        myDads.removeDads();
+        if (Soap.soapMode) {
+          score += 2;
+        } else {
+          otherDads1.removeDads();
+          otherDads2.removeDads();
+          score++;
+        }
         if (!muted) {
           Beep2.play();
         }
         timer.decrement();
-        break;
-      } else if (!Soap.soapMode && (otherDads1.isPointInDads(kid) || otherDads2.isPointInDads(kid))) {
-        kid.remove();
-        myDads.removeDads();
-        otherDads1.removeDads();
-        otherDads2.removeDads();
-        end = true;
-        if (!muted) {
-          Beep3.play();
-        }
-        break;
-      } else if (!Soap.soapMode && timer.timeLeft() <= 0) {
-        kid.remove();
-        myDads.removeDads();
-        otherDads1.removeDads();
-        otherDads2.removeDads();
-        end = true;
         break;
       } else if (!Soap.soapMode && Soap.soapAppeared && Soap.isPointInSoap(kid)) {
+        kid.remove();
+        myDads.removeDads();
+        otherDads1.removeDads();
+        otherDads2.removeDads();
         Soap.soapMode = true;
-        kid.remove();
-        myDads.removeDads();
-        otherDads1.removeDads();
-        otherDads2.removeDads();
         if (!muted) {
           Beep2.play();
         }
-        timer.decrement();
-        break;
-      } else if (Soap.soapMode && myDads.isPointInDads(kid)) {
-        kid.remove();
-        myDads.removeDads();
-        score += 2;
-        if (!muted) {
-          Beep2.play();
-        }
-        timer.decrement();
-        break;
-      } else if (Soap.soapMode && (otherDads1.isPointInDads(kid) || otherDads2.isPointInDads(kid))) {
-        Soap.soapMode = false;
-        kid.remove();
-        myDads.removeDads();
-        otherDads1.removeDads();
-        otherDads2.removeDads();
-        if (!muted) {
-          Beep3.play();
-        }
-        break;
-      } else if (Soap.soapMode && timer.timeLeft() <= 0) {
-        Soap.soapMode = false;
-        kid.remove();
-        myDads.removeDads();
-        otherDads1.removeDads();
-        otherDads2.removeDads();
         break;
       } else if (EZInteraction.wasMouseLeftButtonPressed()) {
         checkIfMutedImageClicked(mouseX, mouseY, battleMusic);
@@ -393,25 +354,28 @@ public class Game {
     EZ.addText(windowWidth / 2, windowHeight / 2 + 400, "Press M to return to menu", Color.black, 40);
     addCorrectMutedImage();
 
-    while (end) {
+    while (endSceneShowing) {
+      EZ.refreshScreen();
       int mouseX = EZInteraction.getXMouse();
       int mouseY = EZInteraction.getYMouse();
       if (EZInteraction.isKeyDown(' ')) {
-        end = false;
+        endSceneShowing = false;
+        gameSceneShowing = true;
         if (!muted) {
           Beep1.play();
         }
+        endSong.stop();
       } else if (EZInteraction.isKeyDown('m')){
-        end = false;
-        menu = true;
+        endSceneShowing = false;
+        menuSceneShowing = true;
         if (!muted) {
           Beep1.play();
         }
-      }
-      if (EZInteraction.wasMouseLeftButtonPressed()) {
+        endSong.stop();
+      } else if (EZInteraction.wasMouseLeftButtonPressed()) {
         if (highScoreRect.isPointInElement(mouseX, mouseY)) {
-          highScores = true;
-          end = false;
+          endSceneShowing = false;
+          highScoreSceneShowing = true;
           if (!muted) {
             Beep1.play();
           }
@@ -419,12 +383,10 @@ public class Game {
           checkIfMutedImageClicked(mouseX, mouseY, endSong);
         }
       }
-      EZ.refreshScreen();
     }
   }
 
   private void saveScore() {
-    battleMusic.stop();
     if (!muted) {
       endSong.play();
     }
@@ -432,50 +394,59 @@ public class Game {
       highScore = score;
     }
 
-    for (int i = 0; i < alHighScores.size(); i++) {
-      // Find new highscore index and create a new textfield.
-      if (score > alHighScores.get(i)) {
-        new EnterTextField();
-
+    int numHighScores = alHighScores.size();
+    if (score > 0 && (numHighScores < 10 || score > alHighScores.get(numHighScores - 1))) {
+      new EnterTextField();
+      while (!EnterTextField.done) {
         try {
-          while (!EnterTextField.done) {
-            Thread.sleep(800);
-          }
+          Thread.sleep(100);
         } catch (InterruptedException e) {
           System.out.println("Error waiting for name input");
         }
-
-        newHighScoreIndex = i;
-        if (alHighScores.size() < 10) {
-          alHighScores.add(i, score);
-          alNames.add(i, EnterTextField.name);
-        } else if (alNames.size() < 10) {
-          alHighScores.add(i, score);
-          alHighScores.remove(10);
-          alNames.add(i, EnterTextField.name);
-        } else {
-          alHighScores.add(i, score);
-          alHighScores.remove(10);
-          alNames.add(i, EnterTextField.name);
-          alNames.remove(10);
-        }
-        try {
-          FileWriter fw = new FileWriter(namesFile);
-          for (int j = 0; j < alNames.size() && j < 10; j++) {
-            fw.write(alNames.get(j) + "\n");
-          }
-          fw.close();
-          fw = new FileWriter(highScoresFile);
-          for (int j = 0; j < alHighScores.size() && j < 10; j++) {
-            fw.write(alHighScores.get(j) + " ");
-          }
-          fw.close();
-        } catch (IOException e) {
-          System.out.println("Error writing names and highscores");
-        }
-        break;
       }
+      String nameInput = EnterTextField.name;
+      // Find new highscore index
+      if (numHighScores == 0) {
+        alNames.add(nameInput);
+        alHighScores.add(score);
+        newHighScoreIndex = 0;
+      } else if (numHighScores < 10 && score <= alHighScores.get(numHighScores - 1)) {
+        alNames.add(nameInput);
+        alHighScores.add(score);
+        newHighScoreIndex = alHighScores.size() - 1;
+      } else {
+        for (int i = 0; i < numHighScores; i++) {
+          if (score > alHighScores.get(i)) {
+            newHighScoreIndex = i;
+            alNames.add(i, nameInput);
+            alHighScores.add(i, score);
+            if (alHighScores.size() == 11) {
+              alNames.remove(10);
+              alHighScores.remove(10);
+            }
+            break;
+          }
+        }
+      }
+      // Write names and highscores
+      try {
+        FileWriter fw = new FileWriter(namesFile);
+        for (String name : alNames) {
+          fw.write(name + "\n");
+        }
+        fw.close();
+        fw = new FileWriter(highScoresFile);
+        for (int highScore : alHighScores) {
+          fw.write(highScore + " ");
+        }
+        fw.close();
+      } catch (IOException e) {
+        System.out.println("Error writing names and highscores");
+      }
+    } else {
+      newHighScoreIndex = -1;
     }
+
     scoreSaved = true;
   }
 
@@ -484,44 +455,25 @@ public class Game {
     EZ.addText(windowWidth / 2, windowHeight / 10, "Hall of Dads", Color.black, 90);
     EZRectangle backRect = EZ.addRectangle(windowWidth / 2, 9 * windowHeight / 10, 150, 70, Color.blue, true);
     EZ.addText(windowWidth / 2, 9 * windowHeight / 10, "Back", Color.white, 40);
-    //if requirements are met, write text
     for (int i = 0; i < 10; i++) {
-      if (i == newHighScoreIndex) {
-        EZ.addText(windowWidth / 2 - 400, i * 60 + 210, i + 1 + ".", Color.red, 40);
-      } else {
-        EZ.addText(windowWidth / 2 - 400, i * 60 + 210, i + 1 + ".", Color.black, 40);
-      }
+      EZ.addText(windowWidth / 2 - 400, i * 60 + 210, i + 1 + ".", i == newHighScoreIndex ? Color.red : Color.black, 40);
     }
-    //if requirements are met, write text
     for (int i = 0; i < alNames.size(); i++) {
-      if (alHighScores.get(i) != 0) {
-        if (i == newHighScoreIndex) {
-          EZ.addText(windowWidth / 2, i * 60 + 210, alNames.get(i), Color.red, 40);
-        } else {
-          EZ.addText(windowWidth / 2, i * 60 + 210, alNames.get(i), Color.black, 40);
-        }
-      }
+      EZ.addText(windowWidth / 2, i * 60 + 210, alNames.get(i), i == newHighScoreIndex ? Color.red : Color.black, 40);
     }
-    //if requirements are met
     for (int i = 0; i < alHighScores.size(); i++) {
-      if (alHighScores.get(i) != 0) {
-        if (i == newHighScoreIndex) {
-          EZ.addText(windowWidth / 2 + 400, i * 60 + 210, alHighScores.get(i) + " Dads", Color.red, 40);
-        } else {
-          EZ.addText(windowWidth / 2 + 400, i * 60 + 210, alHighScores.get(i) + " Dads", Color.black, 40);
-        }
-      }
+      EZ.addText(windowWidth / 2 + 400, i * 60 + 210, alHighScores.get(i) + " Dads", i == newHighScoreIndex ? Color.red : Color.black, 40);
     }
     addCorrectMutedImage();
 
-    while (highScores) {
-      //if backrect is pressed set highscores to false and end to true
+    while (highScoreSceneShowing) {
+      EZ.refreshScreen();
       int mouseX = EZInteraction.getXMouse();
       int mouseY = EZInteraction.getYMouse();
       if (EZInteraction.wasMouseLeftButtonPressed()) {
         if (backRect.isPointInElement(mouseX, mouseY)) {
-          highScores = false;
-          end = true;
+          highScoreSceneShowing = false;
+          endSceneShowing = true;
           if (!muted) {
             Beep1.play();
           }
@@ -529,7 +481,6 @@ public class Game {
           checkIfMutedImageClicked(mouseX, mouseY, endSong);
         }
       }
-      EZ.refreshScreen();
     }
   }
 }

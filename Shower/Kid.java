@@ -49,7 +49,7 @@ public class Kid {
 	}
 
 	//Keyboard controls for moving the kid
-	public void ControlIt() {
+	public void controlIt() {
 		if (EZInteraction.isKeyDown('w')) {
 			moveUp(20);
 		}
