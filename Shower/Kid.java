@@ -1,66 +1,60 @@
-public class Kid {
-	public EZImage kidPicture;
+class Kid {
+	private final EZImage kidPicture;
 	private int x, y;
+  private final int step = 20;
 	
 	//Create kid image by passing x and y
-	public Kid(String filename, int posX, int posY) {
+	Kid(String filename, int posX, int posY) {
 		kidPicture = EZ.addImage(filename, posX, posY);
 		x = posX;
 		y = posY;
 	}
 
-	//Return x position
-	public int getX() {
-		return x;
-	}
+  int getX() {
+    return x;
+  }
 
-	//Return y position
-	public int getY() {
-		return y;
-	}
-
-  //Translate image to x and y position
-	private void setKidImagePosition(int posX, int posY) {
-		kidPicture.translateTo(posX, posY);
-	}
+  int getY() {
+    return y;
+  }
 
 	//Move image left by step
-	public void moveLeft(int step) {
+	private void moveLeft() {
 		x -= step;
-		setKidImagePosition(x, y);
+    kidPicture.translateTo(x, y);
 	}
 
 	//Move image right by step
-	public void moveRight(int step) {
+	private void moveRight() {
 		x += step;
-		setKidImagePosition(x, y);
+    kidPicture.translateTo(x, y);
 	}
 
 	//Move image up by step
-	public void moveUp(int step) {
+	private void moveUp() {
 		y -= step;
-		setKidImagePosition(x, y);
+    kidPicture.translateTo(x, y);
 	}
 
 	//Move image down by step
-	public void moveDown(int step) {
+	private void moveDown() {
 		y += step;
-		setKidImagePosition(x, y);
+    kidPicture.translateTo(x, y);
 	}
 
 	//Keyboard controls for moving the kid
-	public void controlIt() {
+	void controlIt() {
 		if (EZInteraction.isKeyDown('w')) {
-			moveUp(20);
+			moveUp();
 		}
     if (EZInteraction.isKeyDown('a')) {
-			moveLeft(20);
+			moveLeft();
 		}
     if (EZInteraction.isKeyDown('s')) {
-			moveDown(20);
+			moveDown();
 		}
     if (EZInteraction.isKeyDown('d')) {
-			moveRight(20);
+			moveRight();
 		}
 	}
 	

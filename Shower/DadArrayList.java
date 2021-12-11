@@ -1,25 +1,25 @@
 import java.util.ArrayList;
 
-public class DadArrayList {
+class DadArrayList {
 	private final ArrayList<Dad> dads = new ArrayList<>();
 	
-	void addDad(Dad dad) {
+	void add(Dad dad) {
 		dads.add(dad);
 	}
+
+  boolean isPointInDads(int x, int y) {
+    for (Dad dad : dads) {
+      if (dad.isPointInDad(x, y)) {
+        return true;
+      }
+    }
+    return false;
+  }
 	
 	void removeDads() {
 		for (Dad dad : dads) {
 			dad.remove();
 		}
     dads.clear();
-	}
-	
-	boolean isPointInDads(Kid kid) {
-    for (Dad dad : dads) {
-      if (dad.dadImage.isPointInElement(kid.getX(), kid.getY())) {
-        return true;
-      }
-    }
-		return false;
 	}
 }

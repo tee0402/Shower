@@ -2,12 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class EnterTextField extends JFrame implements ActionListener {
+class EnterTextField extends JFrame implements ActionListener {
   private static JTextField enterTextField;
-  public static String name;
-  public static boolean done;
+  static String name;
+  static boolean done;
 
-  public EnterTextField() {
+  EnterTextField() {
 		super("You got a top 10 high score!");
 
     setLayout(new FlowLayout());

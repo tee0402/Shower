@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Game {
+class Game {
   private final int windowWidth = 1915;
   private final int windowHeight = 995;
   private boolean startSceneShowing = true;
@@ -19,10 +19,11 @@ public class Game {
   private int highScore;
   private boolean scoreSaved;
   private int newHighScoreIndex;
-  private final DadArrayList dadAl1 = new DadArrayList();
-  private final DadArrayList dadAl2 = new DadArrayList();
-  private final DadArrayList dadAl3 = new DadArrayList();
+  private final DadArrayList dad1ArrayList = new DadArrayList();
+  private final DadArrayList dad2ArrayList = new DadArrayList();
+  private final DadArrayList dad3ArrayList = new DadArrayList();
   private final Timer timer = new Timer();
+  private final Soap soap = new Soap();
   private int randKid;
   private final EZSound titleMusic = EZ.addSound("TitleMusic.wav");
   private final EZSound battleMusic = EZ.addSound("BattleMusic.wav");
@@ -41,7 +42,7 @@ public class Game {
   private EZImage unmutedImage;
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
-  public Game() {
+  Game() {
     EZ.initialize(windowWidth, windowHeight);
 
     newHighScoreIndex = -1;
@@ -217,36 +218,36 @@ public class Game {
       EZ.refreshScreen();
       boolean dadsXGenerated = false;
       boolean dadsYGenerated = false;
-      int dad1x, dad2x, dad3x, dad1y, dad2y, dad3y;
-      dad1x = dad2x = dad3x = dad1y = dad2y = dad3y = 0;
+      int dad1X, dad2X, dad3X, dad1Y, dad2Y, dad3Y;
+      dad1X = dad2X = dad3X = dad1Y = dad2Y = dad3Y = 0;
       Random random = new Random();
       //while dad x and y generated is false, generate the x and y integers for all 3 dads
       while (!dadsXGenerated) {
-        dad1x = random.nextInt(windowWidth - 100) + 50;
-        dad2x = random.nextInt(windowWidth - 100) + 50;
-        dad3x = random.nextInt(windowWidth - 100) + 50;
-        if (dad1x != dad2x && dad2x != dad3x && dad1x != dad3x && (dad1x < windowWidth / 2 - 200 || dad1x > windowWidth / 2 + 200) && (dad2x < windowWidth / 2 - 200 || dad2x > windowWidth / 2 + 200) && (dad3x < windowWidth / 2 - 200 || dad3x > windowWidth / 2 + 200)) {
+        dad1X = random.nextInt(windowWidth - 100) + 50;
+        dad2X = random.nextInt(windowWidth - 100) + 50;
+        dad3X = random.nextInt(windowWidth - 100) + 50;
+        if (dad1X != dad2X && dad2X != dad3X && dad1X != dad3X && (dad1X < windowWidth / 2 - 200 || dad1X > windowWidth / 2 + 200) && (dad2X < windowWidth / 2 - 200 || dad2X > windowWidth / 2 + 200) && (dad3X < windowWidth / 2 - 200 || dad3X > windowWidth / 2 + 200)) {
           dadsXGenerated = true;
         }
       }
       while (!dadsYGenerated) {
-        dad1y = random.nextInt(windowHeight - 400) + 300;
-        dad2y = random.nextInt(windowHeight - 400) + 300;
-        dad3y = random.nextInt(windowHeight - 400) + 300;
-        if (dad1y != dad2y && dad2y != dad3y && dad1y != dad3y) {
+        dad1Y = random.nextInt(windowHeight - 400) + 300;
+        dad2Y = random.nextInt(windowHeight - 400) + 300;
+        dad3Y = random.nextInt(windowHeight - 400) + 300;
+        if (dad1Y != dad2Y && dad2Y != dad3Y && dad1Y != dad3Y) {
           dadsYGenerated = true;
         }
       }
       //place the 3 dads at the randomly generated coordinates
-      dadAl1.addDad(new Dad("dad1.png", dad1x, dad1y));
-      dadAl2.addDad(new Dad("dad2.png", dad2x, dad2y));
-      dadAl3.addDad(new Dad("dad3.png", dad3x, dad3y));
+      dad1ArrayList.add(new Dad("dad1.png", dad1X, dad1Y));
+      dad2ArrayList.add(new Dad("dad2.png", dad2X, dad2Y));
+      dad3ArrayList.add(new Dad("dad3.png", dad3X, dad3Y));
 
-      if (Soap.soapMode) {
+      if (soap.soapMode) {
         soapText.setMsg("SOAP FRENZY");
       } else {
         randKid = random.nextInt(3) + 1;
-        Soap.randomizedAppear();
+        soap.randomizedAppear();
         soapText.setMsg("");
       }
 
@@ -257,18 +258,20 @@ public class Game {
 
       switch (randKid) {
         case 1:
-          kidGame("kid1.png", dadAl1, dadAl2, dadAl3);
+          kidGame("kid1.png", dad1ArrayList, dad2ArrayList, dad3ArrayList);
           break;
         case 2:
-          kidGame("kid2.png", dadAl2, dadAl1, dadAl3);
+          kidGame("kid2.png", dad2ArrayList, dad1ArrayList, dad3ArrayList);
           break;
         case 3:
-          kidGame("kid3.png", dadAl3, dadAl1, dadAl2);
+          kidGame("kid3.png", dad3ArrayList, dad1ArrayList, dad2ArrayList);
           break;
       }
 
       EZ.removeEZElement(timeRect);
-      Soap.remove();
+      if (soap.soapAppeared) {
+        soap.remove();
+      }
     }
     scoreSaved = false;
   }
@@ -288,14 +291,16 @@ public class Game {
 
       int mouseX = EZInteraction.getXMouse();
       int mouseY = EZInteraction.getYMouse();
+      int kidX = kid.getX();
+      int kidY = kid.getY();
       double timeLeft = timer.timeLeft();
-      if (timeLeft <= 0 || otherDads1.isPointInDads(kid) || otherDads2.isPointInDads(kid)) {
+      if (timeLeft <= 0 || otherDads1.isPointInDads(kidX, kidY) || otherDads2.isPointInDads(kidX, kidY)) {
         kid.remove();
         myDads.removeDads();
         otherDads1.removeDads();
         otherDads2.removeDads();
-        if (Soap.soapMode) {
-          Soap.soapMode = false;
+        if (soap.soapMode) {
+          soap.soapMode = false;
         } else {
           gameSceneShowing = false;
           endSceneShowing = true;
@@ -305,10 +310,10 @@ public class Game {
           Beep3.play();
         }
         break;
-      } else if (myDads.isPointInDads(kid)) {
+      } else if (myDads.isPointInDads(kidX, kidY)) {
         kid.remove();
         myDads.removeDads();
-        if (Soap.soapMode) {
+        if (soap.soapMode) {
           score += 2;
         } else {
           otherDads1.removeDads();
@@ -320,12 +325,12 @@ public class Game {
         }
         timer.decrement();
         break;
-      } else if (!Soap.soapMode && Soap.soapAppeared && Soap.isPointInSoap(kid)) {
+      } else if (soap.soapAppeared && soap.isPointInSoap(kidX, kidY)) {
         kid.remove();
         myDads.removeDads();
         otherDads1.removeDads();
         otherDads2.removeDads();
-        Soap.soapMode = true;
+        soap.soapMode = true;
         if (!muted) {
           Beep2.play();
         }
