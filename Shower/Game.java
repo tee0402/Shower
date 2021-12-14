@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
@@ -19,6 +20,7 @@ class Game {
   private int highScore;
   private boolean scoreSaved;
   private int newHighScoreIndex;
+  private String newHighScoreName;
   private final DadArrayList dad1ArrayList = new DadArrayList();
   private final DadArrayList dad2ArrayList = new DadArrayList();
   private final DadArrayList dad3ArrayList = new DadArrayList();
@@ -47,7 +49,6 @@ class Game {
 
     newHighScoreIndex = -1;
     try {
-      //creates a new scanner that reads the names
       namesFile = new File("names.txt");
       namesFile.createNewFile();
       Scanner sc = new Scanner(namesFile);
@@ -55,7 +56,7 @@ class Game {
         alNames.add(sc.nextLine());
       }
       sc.close();
-      //creates a new scanner that scans highscores.txt
+
       highScoresFile = new File("highscores.txt");
       highScoresFile.createNewFile();
       sc = new Scanner(highScoresFile);
@@ -64,7 +65,7 @@ class Game {
       }
       sc.close();
       highScore = alHighScores.size() == 0 ? 0 : alHighScores.get(0);
-      //creates a new scanner that reads mute.txt
+
       muteFile = new File("mute.txt");
       muteFile.createNewFile();
       sc = new Scanner(muteFile);
@@ -100,31 +101,35 @@ class Game {
   }
 
   private void checkIfMutedImageClicked(int mouseX, int mouseY, EZSound sceneMusic) {
-    try {
-      if (mutedImage != null && mutedImage.isPointInElement(mouseX, mouseY)) {
-        muted = false;
-        EZ.removeEZElement(mutedImage);
-        mutedImage = null;
-        unmutedImage = EZ.addImage("unmuted.png", 29 * windowWidth / 30, 14 * windowHeight / 15);
-        if (sceneMusic != null) {
-          sceneMusic.play();
-        }
+    if (mutedImage != null && mutedImage.isPointInElement(mouseX, mouseY)) {
+      muted = false;
+      EZ.removeEZElement(mutedImage);
+      mutedImage = null;
+      unmutedImage = EZ.addImage("unmuted.png", 29 * windowWidth / 30, 14 * windowHeight / 15);
+      if (sceneMusic != null) {
+        sceneMusic.play();
+      }
+      try {
         FileWriter fw = new FileWriter(muteFile);
         fw.close();
-      } else if (unmutedImage != null && unmutedImage.isPointInElement(mouseX, mouseY)) {
-        muted = true;
-        EZ.removeEZElement(unmutedImage);
-        unmutedImage = null;
-        mutedImage = EZ.addImage("muted.png", 29 * windowWidth / 30, 14 * windowHeight / 15);
-        if (sceneMusic != null) {
-          sceneMusic.pause();
-        }
+      } catch (IOException e) {
+        System.out.println("Error writing mute file");
+      }
+    } else if (unmutedImage != null && unmutedImage.isPointInElement(mouseX, mouseY)) {
+      muted = true;
+      EZ.removeEZElement(unmutedImage);
+      unmutedImage = null;
+      mutedImage = EZ.addImage("muted.png", 29 * windowWidth / 30, 14 * windowHeight / 15);
+      if (sceneMusic != null) {
+        sceneMusic.pause();
+      }
+      try {
         FileWriter fw = new FileWriter(muteFile);
         fw.write("1");
         fw.close();
+      } catch (IOException e) {
+        System.out.println("Error writing mute file");
       }
-    } catch (IOException e) {
-      System.out.println("Error writing mute file");
     }
   }
 
@@ -191,7 +196,7 @@ class Game {
             Beep1.play();
           }
           titleMusic.stop();
-        } else if (ExitButton.isPointInElement(mouseX, mouseY)) {	//if exitbutton is pressed, exit
+        } else if (ExitButton.isPointInElement(mouseX, mouseY)) {
           menuSceneShowing = false;
         } else {
           checkIfMutedImageClicked(mouseX, mouseY, titleMusic);
@@ -216,12 +221,12 @@ class Game {
     timer.resetDecrement();
     while (gameSceneShowing) {
       EZ.refreshScreen();
+      // Generate random coordinates and place the three dads there
       boolean dadsXGenerated = false;
       boolean dadsYGenerated = false;
       int dad1X, dad2X, dad3X, dad1Y, dad2Y, dad3Y;
       dad1X = dad2X = dad3X = dad1Y = dad2Y = dad3Y = 0;
       Random random = new Random();
-      //while dad x and y generated is false, generate the x and y integers for all 3 dads
       while (!dadsXGenerated) {
         dad1X = random.nextInt(windowWidth - 100) + 50;
         dad2X = random.nextInt(windowWidth - 100) + 50;
@@ -238,7 +243,6 @@ class Game {
           dadsYGenerated = true;
         }
       }
-      //place the 3 dads at the randomly generated coordinates
       dad1ArrayList.add(new Dad("dad1.png", dad1X, dad1Y));
       dad2ArrayList.add(new Dad("dad2.png", dad2X, dad2Y));
       dad3ArrayList.add(new Dad("dad3.png", dad3X, dad3Y));
@@ -251,7 +255,6 @@ class Game {
         soapText.setMsg("");
       }
 
-      //start the timer and add a timer bar
       timer.start();
       timeRect = EZ.addRectangle(windowWidth / 2, 30, (int) (450 * timer.timeLeft()), 25, Color.black, true);
       scoreText.setMsg(String.valueOf(score));
@@ -349,7 +352,6 @@ class Game {
       saveScore();
     }
 
-    //end of game menu
     EZ.addImage("ayyyyy.png", windowWidth / 2, 200);
     EZRectangle highScoreRect = EZ.addRectangle(4 * windowWidth / 5, windowHeight / 2, 400, 100, Color.blue, true);
     EZ.addText(4 * windowWidth / 5, windowHeight / 2, "Top 10 High Scores", Color.white, 40);
@@ -398,58 +400,62 @@ class Game {
     if (score > highScore) {
       highScore = score;
     }
+    // Remove previous high score highlight
+    newHighScoreIndex = -1;
 
     int numHighScores = alHighScores.size();
+    // Show enter name prompt if new high score
     if (score > 0 && (numHighScores < 10 || score > alHighScores.get(numHighScores - 1))) {
-      new EnterTextField();
-      while (!EnterTextField.done) {
-        try {
-          Thread.sleep(100);
-        } catch (InterruptedException e) {
-          System.out.println("Error waiting for name input");
-        }
-      }
-      String nameInput = EnterTextField.name;
-      // Find new highscore index
-      if (numHighScores == 0) {
-        alNames.add(nameInput);
-        alHighScores.add(score);
-        newHighScoreIndex = 0;
-      } else if (numHighScores < 10 && score <= alHighScores.get(numHighScores - 1)) {
-        alNames.add(nameInput);
-        alHighScores.add(score);
-        newHighScoreIndex = alHighScores.size() - 1;
-      } else {
-        for (int i = 0; i < numHighScores; i++) {
-          if (score > alHighScores.get(i)) {
-            newHighScoreIndex = i;
-            alNames.add(i, nameInput);
-            alHighScores.add(i, score);
-            if (alHighScores.size() == 11) {
-              alNames.remove(10);
-              alHighScores.remove(10);
+      JFrame enterNameFrame = new JFrame("You got a top 10 high score!");
+      enterNameFrame.setLayout(new FlowLayout());
+      enterNameFrame.add(new JLabel("Please enter your name:"));
+      JTextField nameTextField = new JTextField(30);
+      nameTextField.addActionListener(e -> {
+        newHighScoreName = nameTextField.getText();
+        // Find new high score index
+        if (numHighScores == 0) {
+          alNames.add(newHighScoreName);
+          alHighScores.add(score);
+          newHighScoreIndex = 0;
+        } else if (numHighScores < 10 && score <= alHighScores.get(numHighScores - 1)) {
+          alNames.add(newHighScoreName);
+          alHighScores.add(score);
+          newHighScoreIndex = alHighScores.size() - 1;
+        } else {
+          for (int i = 0; i < numHighScores; i++) {
+            if (score > alHighScores.get(i)) {
+              newHighScoreIndex = i;
+              alNames.add(i, newHighScoreName);
+              alHighScores.add(i, score);
+              if (alHighScores.size() == 11) {
+                alNames.remove(10);
+                alHighScores.remove(10);
+              }
+              break;
             }
-            break;
           }
         }
-      }
-      // Write names and highscores
-      try {
-        FileWriter fw = new FileWriter(namesFile);
-        for (String name : alNames) {
-          fw.write(name + "\n");
+        // Write updated names and high scores to files
+        try {
+          FileWriter fw = new FileWriter(namesFile);
+          for (String name : alNames) {
+            fw.write(name + "\n");
+          }
+          fw.close();
+          fw = new FileWriter(highScoresFile);
+          for (int highScore : alHighScores) {
+            fw.write(highScore + " ");
+          }
+          fw.close();
+        } catch (IOException ex) {
+          System.out.println("Error writing names and high scores");
         }
-        fw.close();
-        fw = new FileWriter(highScoresFile);
-        for (int highScore : alHighScores) {
-          fw.write(highScore + " ");
-        }
-        fw.close();
-      } catch (IOException e) {
-        System.out.println("Error writing names and highscores");
-      }
-    } else {
-      newHighScoreIndex = -1;
+        enterNameFrame.dispose();
+      });
+      enterNameFrame.add(nameTextField);
+      enterNameFrame.add(new JLabel("Press 'Enter' when you're done"));
+      enterNameFrame.setBounds(windowWidth / 2 - 250, windowHeight / 2 - 50, 500, 100);
+      enterNameFrame.setVisible(true);
     }
 
     scoreSaved = true;
