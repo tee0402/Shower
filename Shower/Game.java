@@ -1,26 +1,19 @@
-import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 class Game {
-  private final int windowWidth = 1915;
-  private final int windowHeight = 995;
+  static final int windowWidth = 1915;
+  static final int windowHeight = 995;
   private boolean startSceneShowing = true;
   private boolean menuSceneShowing = false;
   private boolean gameSceneShowing = false;
   private boolean endSceneShowing = false;
   private boolean highScoreSceneShowing = false;
-  private boolean muted;
+  private final Highscores highscores;
+  private final Mute mute;
   private int score;
-  private int highScore;
   private boolean scoreSaved;
-  private int newHighScoreIndex;
-  private String newHighScoreName;
   private final DadArrayList dad1ArrayList = new DadArrayList();
   private final DadArrayList dad2ArrayList = new DadArrayList();
   private final DadArrayList dad3ArrayList = new DadArrayList();
@@ -33,47 +26,13 @@ class Game {
   private final EZSound Beep1 = EZ.addSound("Beep1.wav");
   private final EZSound Beep2 = EZ.addSound("Beep2.wav");
   private final EZSound Beep3 = EZ.addSound("Beep3.wav");
-  private final ArrayList<String> alNames = new ArrayList<>();
-  private final ArrayList<Integer> alHighScores = new ArrayList<>();
-  private final File namesFile;
-  private final File highScoresFile;
-  private final File muteFile;
   private EZRectangle timeRect;
   private EZImage wasd;
-  private EZImage mutedImage;
-  private EZImage unmutedImage;
 
-  @SuppressWarnings("ResultOfMethodCallIgnored")
   Game() {
     EZ.initialize(windowWidth, windowHeight);
-
-    newHighScoreIndex = -1;
-    try {
-      namesFile = new File("names.txt");
-      namesFile.createNewFile();
-      Scanner sc = new Scanner(namesFile);
-      while (sc.hasNextLine()) {
-        alNames.add(sc.nextLine());
-      }
-      sc.close();
-
-      highScoresFile = new File("highscores.txt");
-      highScoresFile.createNewFile();
-      sc = new Scanner(highScoresFile);
-      while (sc.hasNextInt()) {
-        alHighScores.add(sc.nextInt());
-      }
-      sc.close();
-      highScore = alHighScores.size() == 0 ? 0 : alHighScores.get(0);
-
-      muteFile = new File("mute.txt");
-      muteFile.createNewFile();
-      sc = new Scanner(muteFile);
-      muted = sc.hasNextInt() && sc.nextInt() == 1;
-      sc.close();
-    } catch (IOException e) {
-      System.out.println("Error scanning save files");
-    }
+    highscores = new Highscores();
+    mute = new Mute();
 
     while (true) {
       if (startSceneShowing) {
@@ -92,47 +51,6 @@ class Game {
     }
   }
 
-  private void addCorrectMutedImage() {
-    if (muted) {
-      mutedImage = EZ.addImage("muted.png", 29 * windowWidth / 30, 14 * windowHeight / 15);
-    } else {
-      unmutedImage = EZ.addImage("unmuted.png", 29 * windowWidth / 30, 14 * windowHeight / 15);
-    }
-  }
-
-  private void checkIfMutedImageClicked(int mouseX, int mouseY, EZSound sceneMusic) {
-    if (mutedImage != null && mutedImage.isPointInElement(mouseX, mouseY)) {
-      muted = false;
-      EZ.removeEZElement(mutedImage);
-      mutedImage = null;
-      unmutedImage = EZ.addImage("unmuted.png", 29 * windowWidth / 30, 14 * windowHeight / 15);
-      if (sceneMusic != null) {
-        sceneMusic.play();
-      }
-      try {
-        FileWriter fw = new FileWriter(muteFile);
-        fw.close();
-      } catch (IOException e) {
-        System.out.println("Error writing mute file");
-      }
-    } else if (unmutedImage != null && unmutedImage.isPointInElement(mouseX, mouseY)) {
-      muted = true;
-      EZ.removeEZElement(unmutedImage);
-      unmutedImage = null;
-      mutedImage = EZ.addImage("muted.png", 29 * windowWidth / 30, 14 * windowHeight / 15);
-      if (sceneMusic != null) {
-        sceneMusic.pause();
-      }
-      try {
-        FileWriter fw = new FileWriter(muteFile);
-        fw.write("1");
-        fw.close();
-      } catch (IOException e) {
-        System.out.println("Error writing mute file");
-      }
-    }
-  }
-
   private void startScene() {
     EZ.removeAllEZElements();
 
@@ -141,7 +59,7 @@ class Game {
     EZ.addText(windowWidth / 2, windowHeight / 2, "Yes", Color.white, 30);
     EZRectangle noRect = EZ.addRectangle(windowWidth / 2, windowHeight / 2 + 150, 200, 100, Color.red, true);
     EZ.addText(windowWidth / 2, windowHeight / 2 + 150, "No", Color.white, 30);
-    addCorrectMutedImage();
+    mute.addCorrectMutedImage();
 
     while (startSceneShowing) {
       EZ.refreshScreen();
@@ -151,13 +69,13 @@ class Game {
         if (yesRect.isPointInElement(mouseX, mouseY)) {
           startSceneShowing = false;
           menuSceneShowing = true;
-          if (!muted) {
+          if (mute.isUnmuted()) {
             Beep3.play();
           }
         } else if (noRect.isPointInElement(mouseX, mouseY)) {
           startSceneShowing = false;
         } else {
-          checkIfMutedImageClicked(mouseX, mouseY, null);
+          mute.checkIfMutedImageClicked(mouseX, mouseY, null);
         }
       }
     }
@@ -165,7 +83,7 @@ class Game {
 
   private void menuScene() {
     EZ.removeAllEZElements();
-    if (!muted) {
+    if (mute.isUnmuted()) {
       titleMusic.play();
     }
     EZ.setBackgroundColor(new Color(140,230,231));
@@ -182,7 +100,7 @@ class Game {
     EZ.addImage("kid2.png", windowWidth / 2, 650);
     EZ.addImage("matchMe.png", 820, 570);
     EZ.addImage("orElse.png", 1110, 570);
-    addCorrectMutedImage();
+    mute.addCorrectMutedImage();
 
     while (menuSceneShowing) {
       EZ.refreshScreen();
@@ -192,14 +110,14 @@ class Game {
         if (StartButton.isPointInElement(mouseX, mouseY)) {
           menuSceneShowing = false;
           gameSceneShowing = true;
-          if (!muted) {
+          if (mute.isUnmuted()) {
             Beep1.play();
           }
           titleMusic.stop();
         } else if (ExitButton.isPointInElement(mouseX, mouseY)) {
           menuSceneShowing = false;
         } else {
-          checkIfMutedImageClicked(mouseX, mouseY, titleMusic);
+          mute.checkIfMutedImageClicked(mouseX, mouseY, titleMusic);
         }
       }
     }
@@ -207,7 +125,7 @@ class Game {
 
   private void gameScene() {
     EZ.removeAllEZElements();
-    if (!muted) {
+    if (mute.isUnmuted()) {
       battleMusic.play();
     }
     EZ.addImage("background.png", windowWidth / 2, windowHeight / 2);
@@ -215,8 +133,8 @@ class Game {
     score = 0;
     EZText scoreText = EZ.addText(windowWidth / 2, 80, String.valueOf(score), Color.black, 70);
     EZText soapText = EZ.addText(windowWidth / 2, 200, "", Color.red, 120);
-    EZ.addText(windowWidth / 2, 130, "High: " + highScore, Color.black, 30);
-    addCorrectMutedImage();
+    EZ.addText(windowWidth / 2, 130, "High: " + highscores.getHighScore(), Color.black, 30);
+    mute.addCorrectMutedImage();
 
     timer.resetDecrement();
     while (gameSceneShowing) {
@@ -309,7 +227,7 @@ class Game {
           endSceneShowing = true;
           battleMusic.stop();
         }
-        if (!muted && timeLeft > 0) {
+        if (mute.isUnmuted() && timeLeft > 0) {
           Beep3.play();
         }
         break;
@@ -323,7 +241,7 @@ class Game {
           otherDads2.removeDads();
           score++;
         }
-        if (!muted) {
+        if (mute.isUnmuted()) {
           Beep2.play();
         }
         timer.decrement();
@@ -334,12 +252,12 @@ class Game {
         otherDads1.removeDads();
         otherDads2.removeDads();
         soap.soapMode = true;
-        if (!muted) {
+        if (mute.isUnmuted()) {
           Beep2.play();
         }
         break;
       } else if (EZInteraction.wasMouseLeftButtonPressed()) {
-        checkIfMutedImageClicked(mouseX, mouseY, battleMusic);
+        mute.checkIfMutedImageClicked(mouseX, mouseY, battleMusic);
       }
       EZ.refreshScreen();
     }
@@ -349,17 +267,21 @@ class Game {
     EZ.removeAllEZElements();
 
     if (!scoreSaved) {
-      saveScore();
+      if (mute.isUnmuted()) {
+        endSong.play();
+      }
+      highscores.checkHighScore(score);
+      scoreSaved = true;
     }
 
     EZ.addImage("ayyyyy.png", windowWidth / 2, 200);
     EZRectangle highScoreRect = EZ.addRectangle(4 * windowWidth / 5, windowHeight / 2, 400, 100, Color.blue, true);
     EZ.addText(4 * windowWidth / 5, windowHeight / 2, "Top 10 High Scores", Color.white, 40);
-    EZ.addText(windowWidth / 2, windowHeight / 2 + 100, "High Score: " + highScore + " Dads", Color.black, 40);
+    EZ.addText(windowWidth / 2, windowHeight / 2 + 100, "High Score: " + highscores.getHighScore() + " Dads", Color.black, 40);
     EZ.addText(windowWidth / 2, windowHeight / 2, "You got " + score + " Dads.", Color.black, 40);
     EZ.addText(windowWidth / 2, windowHeight / 2 + 300, "Press space to retry", Color.black, 40);
     EZ.addText(windowWidth / 2, windowHeight / 2 + 400, "Press M to return to menu", Color.black, 40);
-    addCorrectMutedImage();
+    mute.addCorrectMutedImage();
 
     while (endSceneShowing) {
       EZ.refreshScreen();
@@ -368,14 +290,14 @@ class Game {
       if (EZInteraction.isKeyDown(' ')) {
         endSceneShowing = false;
         gameSceneShowing = true;
-        if (!muted) {
+        if (mute.isUnmuted()) {
           Beep1.play();
         }
         endSong.stop();
       } else if (EZInteraction.isKeyDown('m')){
         endSceneShowing = false;
         menuSceneShowing = true;
-        if (!muted) {
+        if (mute.isUnmuted()) {
           Beep1.play();
         }
         endSong.stop();
@@ -383,82 +305,14 @@ class Game {
         if (highScoreRect.isPointInElement(mouseX, mouseY)) {
           endSceneShowing = false;
           highScoreSceneShowing = true;
-          if (!muted) {
+          if (mute.isUnmuted()) {
             Beep1.play();
           }
         } else {
-          checkIfMutedImageClicked(mouseX, mouseY, endSong);
+          mute.checkIfMutedImageClicked(mouseX, mouseY, endSong);
         }
       }
     }
-  }
-
-  private void saveScore() {
-    if (!muted) {
-      endSong.play();
-    }
-    if (score > highScore) {
-      highScore = score;
-    }
-    // Remove previous high score highlight
-    newHighScoreIndex = -1;
-
-    int numHighScores = alHighScores.size();
-    // Show enter name prompt if new high score
-    if (score > 0 && (numHighScores < 10 || score > alHighScores.get(numHighScores - 1))) {
-      JFrame enterNameFrame = new JFrame("You got a top 10 high score!");
-      enterNameFrame.setLayout(new FlowLayout());
-      enterNameFrame.add(new JLabel("Please enter your name:"));
-      JTextField nameTextField = new JTextField(30);
-      nameTextField.addActionListener(e -> {
-        newHighScoreName = nameTextField.getText();
-        // Find new high score index
-        if (numHighScores == 0) {
-          alNames.add(newHighScoreName);
-          alHighScores.add(score);
-          newHighScoreIndex = 0;
-        } else if (numHighScores < 10 && score <= alHighScores.get(numHighScores - 1)) {
-          alNames.add(newHighScoreName);
-          alHighScores.add(score);
-          newHighScoreIndex = alHighScores.size() - 1;
-        } else {
-          for (int i = 0; i < numHighScores; i++) {
-            if (score > alHighScores.get(i)) {
-              newHighScoreIndex = i;
-              alNames.add(i, newHighScoreName);
-              alHighScores.add(i, score);
-              if (alHighScores.size() == 11) {
-                alNames.remove(10);
-                alHighScores.remove(10);
-              }
-              break;
-            }
-          }
-        }
-        // Write updated names and high scores to files
-        try {
-          FileWriter fw = new FileWriter(namesFile);
-          for (String name : alNames) {
-            fw.write(name + "\n");
-          }
-          fw.close();
-          fw = new FileWriter(highScoresFile);
-          for (int highScore : alHighScores) {
-            fw.write(highScore + " ");
-          }
-          fw.close();
-        } catch (IOException ex) {
-          System.out.println("Error writing names and high scores");
-        }
-        enterNameFrame.dispose();
-      });
-      enterNameFrame.add(nameTextField);
-      enterNameFrame.add(new JLabel("Press 'Enter' when you're done"));
-      enterNameFrame.setBounds(windowWidth / 2 - 250, windowHeight / 2 - 50, 500, 100);
-      enterNameFrame.setVisible(true);
-    }
-
-    scoreSaved = true;
   }
 
   private void highScoreScene() {
@@ -467,15 +321,17 @@ class Game {
     EZRectangle backRect = EZ.addRectangle(windowWidth / 2, 9 * windowHeight / 10, 150, 70, Color.blue, true);
     EZ.addText(windowWidth / 2, 9 * windowHeight / 10, "Back", Color.white, 40);
     for (int i = 0; i < 10; i++) {
-      EZ.addText(windowWidth / 2 - 400, i * 60 + 210, i + 1 + ".", i == newHighScoreIndex ? Color.red : Color.black, 40);
+      EZ.addText(windowWidth / 2 - 400, i * 60 + 210, i + 1 + ".", i == highscores.getNewHighScoreIndex() ? Color.red : Color.black, 40);
     }
-    for (int i = 0; i < alNames.size(); i++) {
-      EZ.addText(windowWidth / 2, i * 60 + 210, alNames.get(i), i == newHighScoreIndex ? Color.red : Color.black, 40);
+    ArrayList<String> names = highscores.getNames();
+    for (int i = 0; i < names.size(); i++) {
+      EZ.addText(windowWidth / 2, i * 60 + 210, names.get(i), i == highscores.getNewHighScoreIndex() ? Color.red : Color.black, 40);
     }
-    for (int i = 0; i < alHighScores.size(); i++) {
-      EZ.addText(windowWidth / 2 + 400, i * 60 + 210, alHighScores.get(i) + " Dads", i == newHighScoreIndex ? Color.red : Color.black, 40);
+    ArrayList<Integer> highScores = highscores.getHighScores();
+    for (int i = 0; i < highScores.size(); i++) {
+      EZ.addText(windowWidth / 2 + 400, i * 60 + 210, highScores.get(i) + " Dads", i == highscores.getNewHighScoreIndex() ? Color.red : Color.black, 40);
     }
-    addCorrectMutedImage();
+    mute.addCorrectMutedImage();
 
     while (highScoreSceneShowing) {
       EZ.refreshScreen();
@@ -485,11 +341,11 @@ class Game {
         if (backRect.isPointInElement(mouseX, mouseY)) {
           highScoreSceneShowing = false;
           endSceneShowing = true;
-          if (!muted) {
+          if (mute.isUnmuted()) {
             Beep1.play();
           }
         } else {
-          checkIfMutedImageClicked(mouseX, mouseY, endSong);
+          mute.checkIfMutedImageClicked(mouseX, mouseY, endSong);
         }
       }
     }
