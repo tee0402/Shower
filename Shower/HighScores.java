@@ -3,14 +3,14 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 
-class Highscores {
+class HighScores {
   private final ArrayList<String> names;
   private final ArrayList<Integer> highScores;
   private final File namesFile;
   private final File highScoresFile;
   private int newHighScoreIndex = -1;
 
-  Highscores() {
+  HighScores() {
     names = new ArrayList<>();
     highScores = new ArrayList<>();
     namesFile = new File("names.txt");

@@ -10,7 +10,7 @@ class Game {
   private boolean gameSceneShowing = false;
   private boolean endSceneShowing = false;
   private boolean highScoreSceneShowing = false;
-  private final Highscores highscores;
+  private final HighScores highScores;
   private final Mute mute;
   private int score;
   private boolean scoreSaved;
@@ -31,7 +31,7 @@ class Game {
 
   Game() {
     EZ.initialize(windowWidth, windowHeight);
-    highscores = new Highscores();
+    highScores = new HighScores();
     mute = new Mute();
 
     while (true) {
@@ -133,7 +133,7 @@ class Game {
     score = 0;
     EZText scoreText = EZ.addText(windowWidth / 2, 80, String.valueOf(score), Color.black, 70);
     EZText soapText = EZ.addText(windowWidth / 2, 200, "", Color.red, 120);
-    EZ.addText(windowWidth / 2, 130, "High: " + highscores.getHighScore(), Color.black, 30);
+    EZ.addText(windowWidth / 2, 130, "High: " + highScores.getHighScore(), Color.black, 30);
     mute.addCorrectMutedImage();
 
     timer.resetDecrement();
@@ -270,14 +270,14 @@ class Game {
       if (mute.isUnmuted()) {
         endSong.play();
       }
-      highscores.checkHighScore(score);
+      highScores.checkHighScore(score);
       scoreSaved = true;
     }
 
     EZ.addImage("ayyyyy.png", windowWidth / 2, 200);
     EZRectangle highScoreRect = EZ.addRectangle(4 * windowWidth / 5, windowHeight / 2, 400, 100, Color.blue, true);
     EZ.addText(4 * windowWidth / 5, windowHeight / 2, "Top 10 High Scores", Color.white, 40);
-    EZ.addText(windowWidth / 2, windowHeight / 2 + 100, "High Score: " + highscores.getHighScore() + " Dads", Color.black, 40);
+    EZ.addText(windowWidth / 2, windowHeight / 2 + 100, "High Score: " + highScores.getHighScore() + " Dads", Color.black, 40);
     EZ.addText(windowWidth / 2, windowHeight / 2, "You got " + score + " Dads.", Color.black, 40);
     EZ.addText(windowWidth / 2, windowHeight / 2 + 300, "Press space to retry", Color.black, 40);
     EZ.addText(windowWidth / 2, windowHeight / 2 + 400, "Press M to return to menu", Color.black, 40);
@@ -320,16 +320,17 @@ class Game {
     EZ.addText(windowWidth / 2, windowHeight / 10, "Hall of Dads", Color.black, 90);
     EZRectangle backRect = EZ.addRectangle(windowWidth / 2, 9 * windowHeight / 10, 150, 70, Color.blue, true);
     EZ.addText(windowWidth / 2, 9 * windowHeight / 10, "Back", Color.white, 40);
+    int newHighScoreIndex = highScores.getNewHighScoreIndex();
     for (int i = 0; i < 10; i++) {
-      EZ.addText(windowWidth / 2 - 400, i * 60 + 210, i + 1 + ".", i == highscores.getNewHighScoreIndex() ? Color.red : Color.black, 40);
+      EZ.addText(windowWidth / 2 - 400, i * 60 + 210, i + 1 + ".", i == newHighScoreIndex ? Color.red : Color.black, 40);
     }
-    ArrayList<String> names = highscores.getNames();
-    for (int i = 0; i < names.size(); i++) {
-      EZ.addText(windowWidth / 2, i * 60 + 210, names.get(i), i == highscores.getNewHighScoreIndex() ? Color.red : Color.black, 40);
+    ArrayList<String> namesList = highScores.getNames();
+    for (int i = 0; i < namesList.size(); i++) {
+      EZ.addText(windowWidth / 2, i * 60 + 210, namesList.get(i), i == newHighScoreIndex ? Color.red : Color.black, 40);
     }
-    ArrayList<Integer> highScores = highscores.getHighScores();
-    for (int i = 0; i < highScores.size(); i++) {
-      EZ.addText(windowWidth / 2 + 400, i * 60 + 210, highScores.get(i) + " Dads", i == highscores.getNewHighScoreIndex() ? Color.red : Color.black, 40);
+    ArrayList<Integer> highScoresList = highScores.getHighScores();
+    for (int i = 0; i < highScoresList.size(); i++) {
+      EZ.addText(windowWidth / 2 + 400, i * 60 + 210, highScoresList.get(i) + " Dads", i == newHighScoreIndex ? Color.red : Color.black, 40);
     }
     mute.addCorrectMutedImage();
 
