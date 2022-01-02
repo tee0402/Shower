@@ -10,8 +10,8 @@ class Game {
   private boolean gameSceneShowing = false;
   private boolean endSceneShowing = false;
   private boolean highScoreSceneShowing = false;
-  private final HighScores highScores;
-  private final Mute mute;
+  private final HighScores highScores = new HighScores();
+  private final Mute mute = new Mute();
   private int score;
   private boolean scoreSaved;
   private final DadArrayList dad1ArrayList = new DadArrayList();
@@ -31,8 +31,6 @@ class Game {
 
   Game() {
     EZ.initialize(windowWidth, windowHeight);
-    highScores = new HighScores();
-    mute = new Mute();
 
     while (true) {
       if (startSceneShowing) {

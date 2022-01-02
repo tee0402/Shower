@@ -4,17 +4,13 @@ import java.io.*;
 import java.util.*;
 
 class HighScores {
-  private final ArrayList<String> names;
-  private final ArrayList<Integer> highScores;
-  private final File namesFile;
-  private final File highScoresFile;
+  private final ArrayList<String> names = new ArrayList<>();
+  private final ArrayList<Integer> highScores = new ArrayList<>();
+  private final File namesFile = new File("names.txt");
+  private final File highScoresFile = new File("highscores.txt");
   private int newHighScoreIndex = -1;
 
   HighScores() {
-    names = new ArrayList<>();
-    highScores = new ArrayList<>();
-    namesFile = new File("names.txt");
-    highScoresFile = new File("highscores.txt");
     try {
       if (namesFile.exists() || namesFile.createNewFile()) {
         Scanner scanner = new Scanner(namesFile);

@@ -6,13 +6,8 @@ class Timer {
 		start = System.currentTimeMillis();
 	}
 	
-	long timeElapsed() {
-		long now = System.currentTimeMillis();
-		return now - start;
-	}
-	
 	double timeLeft() {
-		return (double) (timeLimit - timeElapsed()) / 1000;
+		return (double) (timeLimit - (System.currentTimeMillis() - start)) / 1000;
 	}
 	
 	void decrement() {

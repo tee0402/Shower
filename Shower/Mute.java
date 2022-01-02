@@ -2,13 +2,12 @@ import java.io.*;
 import java.util.Scanner;
 
 class Mute {
+  private final File muteFile = new File("mute.txt");
   private boolean muted;
-  private final File muteFile;
   private EZImage mutedImage;
   private EZImage unmutedImage;
 
   Mute() {
-    muteFile = new File("mute.txt");
     try {
       if (muteFile.exists() || muteFile.createNewFile()) {
         Scanner scanner = new Scanner(muteFile);

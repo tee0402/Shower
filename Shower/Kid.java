@@ -4,10 +4,10 @@ class Kid {
   private final int step = 20;
 	
 	//Create kid image by passing x and y
-	Kid(String fileName, int posX, int posY) {
-		kidPicture = EZ.addImage(fileName, posX, posY);
-		x = posX;
-		y = posY;
+	Kid(String fileName, int x, int y) {
+		kidPicture = EZ.addImage(fileName, x, y);
+		this.x = x;
+		this.y = y;
 	}
 
   int getX() {
