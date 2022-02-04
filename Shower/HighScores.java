@@ -1,7 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 class HighScores {
   private final ArrayList<String> names = new ArrayList<>();
