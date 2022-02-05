@@ -34,23 +34,11 @@ class HighScores {
     }
   }
 
-  ArrayList<String> getNames() {
-    return names;
-  }
-
-  ArrayList<Integer> getHighScores() {
-    return highScores;
-  }
-
   int getHighScore() {
     return highScores.size() == 0 ? 0 : highScores.get(0);
   }
 
-  int getNewHighScoreIndex() {
-    return newHighScoreIndex;
-  }
-
-  void checkHighScore(int score) {
+  void enterNameIfNewHighScore(int score) {
     newHighScoreIndex = -1;
 
     int numHighScores = highScores.size();
@@ -74,30 +62,34 @@ class HighScores {
 
   // Adds a new high score and returns the index
   private int addHighScore(String name, int score) {
+    int index = -1;
     int numHighScores = highScores.size();
-    if (numHighScores == 0) {
-      names.add(name);
-      highScores.add(score);
-      return 0;
-    } else if (numHighScores < 10 && score <= highScores.get(numHighScores - 1)) {
-      names.add(name);
-      highScores.add(score);
-      return highScores.size() - 1;
-    } else {
-      for (int i = 0; i < numHighScores; i++) {
-        if (score > highScores.get(i)) {
-          names.add(i, name);
-          highScores.add(i, score);
-          if (highScores.size() == 11) {
-            names.remove(10);
-            highScores.remove(10);
+    if (numHighScores < 10 || score > highScores.get(numHighScores - 1)) {
+      if (numHighScores == 0) {
+        names.add(name);
+        highScores.add(score);
+        index = 0;
+      } else if (numHighScores < 10 && score <= highScores.get(numHighScores - 1)) {
+        names.add(name);
+        highScores.add(score);
+        index = highScores.size() - 1;
+      } else {
+        for (int i = 0; i < numHighScores; i++) {
+          if (score > highScores.get(i)) {
+            names.add(i, name);
+            highScores.add(i, score);
+            if (highScores.size() == 11) {
+              names.remove(10);
+              highScores.remove(10);
+            }
+            index = i;
+            break;
           }
-          return i;
         }
       }
+      writeToFiles();
     }
-    writeToFiles();
-    return -1;
+    return index;
   }
 
   private void writeToFiles() {
@@ -112,8 +104,22 @@ class HighScores {
         fileWriter.write(highScore + " ");
       }
       fileWriter.close();
-    } catch (IOException ex) {
+    } catch (IOException e) {
       System.out.println("Error writing names and high scores");
+    }
+  }
+
+  void createTable() {
+    for (int i = 0; i < 10; i++) {
+      EZ.addText(Game.windowWidth / 2 - 400, i * 60 + 210, i + 1 + ".", i == newHighScoreIndex ? Color.red : Color.black, 40);
+    }
+    int numNames = names.size();
+    for (int i = 0; i < numNames; i++) {
+      EZ.addText(Game.windowWidth / 2, i * 60 + 210, names.get(i), i == newHighScoreIndex ? Color.red : Color.black, 40);
+    }
+    int numHighScores = highScores.size();
+    for (int i = 0; i < numHighScores; i++) {
+      EZ.addText(Game.windowWidth / 2 + 400, i * 60 + 210, highScores.get(i) + " Dads", i == newHighScoreIndex ? Color.red : Color.black, 40);
     }
   }
 }

@@ -2,22 +2,25 @@ import java.util.Random;
 
 class Soap {
 	private EZImage soapImage;
-  boolean soapMode = false;
-	boolean soapAppeared = false;
+  private boolean soapAppeared = false;
+  private boolean soapMode = false;
+
+  boolean isSoapAppeared() {
+    return soapAppeared;
+  }
+
+  boolean isSoapMode() {
+    return soapMode;
+  }
+  void setSoapMode(boolean soapMode) {
+    this.soapMode = soapMode;
+  }
 
   void randomizedAppear() {
     Random random = new Random();
     if (random.nextInt(10) == 0) {
-      int x = 0;
-      boolean soapXGenerated = false;
-      int windowWidth = EZ.getWindowWidth();
-      while (!soapXGenerated) {
-        x = random.nextInt(windowWidth - 100) + 50;
-        if (x < windowWidth / 2 - 200 || x > windowWidth / 2 + 200) {
-          soapXGenerated = true;
-        }
-      }
-      int y = random.nextInt(EZ.getWindowHeight() - 400) + 300;
+      int x = (random.nextBoolean() ? 50 : Game.windowWidth / 2 + 200) + random.nextInt(Game.windowWidth / 2 - 250);
+      int y = random.nextInt(Game.windowHeight - 400) + 300;
       soapImage = EZ.addImage("soap.png", x, y);
       soapAppeared = true;
 		}
