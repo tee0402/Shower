@@ -32,6 +32,8 @@ class Game {
     EZ.initialize(windowWidth, windowHeight);
 
     while (true) {
+      EZ.removeAllEZElements();
+      mute.addCorrectMutedImage();
       if (startSceneShowing) {
         startScene();
       } else if (menuSceneShowing) {
@@ -49,14 +51,11 @@ class Game {
   }
 
   private void startScene() {
-    EZ.removeAllEZElements();
-
     EZ.addText("Impact", windowWidth / 2, windowHeight / 2 - 200, "Are you 18 or older?", Color.black, 50);
     EZRectangle yesRect = EZ.addRectangle(windowWidth / 2, windowHeight / 2, 200, 100, Color.green, true);
     EZ.addText(windowWidth / 2, windowHeight / 2, "Yes", Color.white, 30);
     EZRectangle noRect = EZ.addRectangle(windowWidth / 2, windowHeight / 2 + 150, 200, 100, Color.red, true);
     EZ.addText(windowWidth / 2, windowHeight / 2 + 150, "No", Color.white, 30);
-    mute.addCorrectMutedImage();
 
     while (startSceneShowing) {
       EZ.refreshScreen();
@@ -77,7 +76,6 @@ class Game {
   }
 
   private void menuScene() {
-    EZ.removeAllEZElements();
     mute.playIfUnmuted(titleMusic);
     EZ.setBackgroundColor(new Color(140,230,231));
     EZ.addImage("ShowerWithYourDadTitle.png", windowWidth / 2, 200);
@@ -93,7 +91,6 @@ class Game {
     EZ.addImage("kid2.png", windowWidth / 2, 650);
     EZ.addImage("matchMe.png", 820, 570);
     EZ.addImage("orElse.png", 1110, 570);
-    mute.addCorrectMutedImage();
 
     while (menuSceneShowing) {
       EZ.refreshScreen();
@@ -115,15 +112,14 @@ class Game {
   }
 
   private void gameScene() {
-    EZ.removeAllEZElements();
     mute.playIfUnmuted(battleMusic);
-    EZ.addImage("background.png", windowWidth / 2, windowHeight / 2);
+    EZImage background = EZ.addImage("background.png", windowWidth / 2, windowHeight / 2);
+    background.pushToBack();
     wasd = EZ.addImage("wasd.png", windowWidth / 2, 600);
     score = 0;
     EZText scoreText = EZ.addText(windowWidth / 2, 80, String.valueOf(score), Color.black, 70);
     EZText soapText = EZ.addText(windowWidth / 2, 200, "", Color.red, 120);
     EZ.addText(windowWidth / 2, 130, "High: " + highScores.getHighScore(), Color.black, 30);
-    mute.addCorrectMutedImage();
 
     timer.resetDecrement();
     while (gameSceneShowing) {
@@ -239,8 +235,6 @@ class Game {
   }
 
   private void endScene() {
-    EZ.removeAllEZElements();
-
     if (!scoreSaved) {
       mute.playIfUnmuted(endSong);
       highScores.enterNameIfNewHighScore(score);
@@ -254,7 +248,6 @@ class Game {
     EZ.addText(windowWidth / 2, windowHeight / 2, "You got " + score + " Dads.", Color.black, 40);
     EZ.addText(windowWidth / 2, windowHeight / 2 + 300, "Press space to retry", Color.black, 40);
     EZ.addText(windowWidth / 2, windowHeight / 2 + 400, "Press M to return to menu", Color.black, 40);
-    mute.addCorrectMutedImage();
 
     while (endSceneShowing) {
       EZ.refreshScreen();
@@ -283,12 +276,10 @@ class Game {
   }
 
   private void highScoreScene() {
-    EZ.removeAllEZElements();
     EZ.addText(windowWidth / 2, windowHeight / 10, "Hall of Dads", Color.black, 90);
     EZRectangle backRect = EZ.addRectangle(windowWidth / 2, 9 * windowHeight / 10, 150, 70, Color.blue, true);
     EZ.addText(windowWidth / 2, 9 * windowHeight / 10, "Back", Color.white, 40);
     highScores.createTable();
-    mute.addCorrectMutedImage();
 
     while (highScoreSceneShowing) {
       EZ.refreshScreen();
