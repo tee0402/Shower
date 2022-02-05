@@ -19,12 +19,12 @@ class Game {
   private final Timer timer = new Timer();
   private final Soap soap = new Soap();
   private int randKid;
-  private final EZSound titleMusic = EZ.addSound("TitleMusic.wav");
-  private final EZSound battleMusic = EZ.addSound("BattleMusic.wav");
-  private final EZSound endSong = EZ.addSound("EndSong.wav");
-  private final EZSound beep1 = EZ.addSound("Beep1.wav");
-  private final EZSound beep2 = EZ.addSound("Beep2.wav");
-  private final EZSound beep3 = EZ.addSound("Beep3.wav");
+  private final EZSound titleMusic = EZ.addSound("resources/TitleMusic.wav");
+  private final EZSound battleMusic = EZ.addSound("resources/BattleMusic.wav");
+  private final EZSound endSong = EZ.addSound("resources/EndSong.wav");
+  private final EZSound beep1 = EZ.addSound("resources/Beep1.wav");
+  private final EZSound beep2 = EZ.addSound("resources/Beep2.wav");
+  private final EZSound beep3 = EZ.addSound("resources/Beep3.wav");
   private EZRectangle timeRect;
   private EZImage wasd;
 
@@ -78,19 +78,19 @@ class Game {
   private void menuScene() {
     mute.playIfUnmuted(titleMusic);
     EZ.setBackgroundColor(new Color(140,230,231));
-    EZ.addImage("ShowerWithYourDadTitle.png", windowWidth / 2, 200);
-    EZ.addImage("Simulator.png", windowWidth / 2, 300);
-    EZ.addImage("2015.png", windowWidth / 2, 400);
-    EZ.addImage("survive.png", windowWidth / 2, 500);
-    EZ.addImage("kid1.png", 650, 400);
-    EZ.addImage("dad1.png", 550, 375);
-    EZ.addImage("kid3.png", 1240, 400);
-    EZ.addImage("dad3.png", 1355, 375);
-    EZImage StartButton = EZ.addImage("startImage.png", windowWidth / 6, 800);
-    EZImage ExitButton = EZ.addImage("Exit.png", 5 * windowWidth / 6, 800);
-    EZ.addImage("kid2.png", windowWidth / 2, 650);
-    EZ.addImage("matchMe.png", 820, 570);
-    EZ.addImage("orElse.png", 1110, 570);
+    EZ.addImage("resources/ShowerWithYourDadTitle.png", windowWidth / 2, 200);
+    EZ.addImage("resources/Simulator.png", windowWidth / 2, 300);
+    EZ.addImage("resources/2015.png", windowWidth / 2, 400);
+    EZ.addImage("resources/survive.png", windowWidth / 2, 500);
+    EZ.addImage("resources/kid1.png", 650, 400);
+    EZ.addImage("resources/dad1.png", 550, 375);
+    EZ.addImage("resources/kid3.png", 1240, 400);
+    EZ.addImage("resources/dad3.png", 1355, 375);
+    EZImage StartButton = EZ.addImage("resources/startImage.png", windowWidth / 6, 800);
+    EZImage ExitButton = EZ.addImage("resources/Exit.png", 5 * windowWidth / 6, 800);
+    EZ.addImage("resources/kid2.png", windowWidth / 2, 650);
+    EZ.addImage("resources/matchMe.png", 820, 570);
+    EZ.addImage("resources/orElse.png", 1110, 570);
 
     while (menuSceneShowing) {
       EZ.refreshScreen();
@@ -113,9 +113,9 @@ class Game {
 
   private void gameScene() {
     mute.playIfUnmuted(battleMusic);
-    EZImage background = EZ.addImage("background.png", windowWidth / 2, windowHeight / 2);
+    EZImage background = EZ.addImage("resources/background.png", windowWidth / 2, windowHeight / 2);
     background.pushToBack();
-    wasd = EZ.addImage("wasd.png", windowWidth / 2, 600);
+    wasd = EZ.addImage("resources/wasd.png", windowWidth / 2, 600);
     score = 0;
     EZText scoreText = EZ.addText(windowWidth / 2, 80, String.valueOf(score), Color.black, 70);
     EZText soapText = EZ.addText(windowWidth / 2, 200, "", Color.red, 120);
@@ -133,9 +133,9 @@ class Game {
         int dad2Y = random.nextInt(windowHeight - 400) + 300;
         int dad3Y = random.nextInt(windowHeight - 400) + 300;
         if (dad1X != dad2X && dad2X != dad3X && dad1X != dad3X && dad1Y != dad2Y && dad2Y != dad3Y && dad1Y != dad3Y) {
-          dads1.add("dad1.png", dad1X, dad1Y);
-          dads2.add("dad2.png", dad2X, dad2Y);
-          dads3.add("dad3.png", dad3X, dad3Y);
+          dads1.add("resources/dad1.png", dad1X, dad1Y);
+          dads2.add("resources/dad2.png", dad2X, dad2Y);
+          dads3.add("resources/dad3.png", dad3X, dad3Y);
           break;
         }
       }
@@ -154,13 +154,13 @@ class Game {
 
       switch (randKid) {
         case 1:
-          kidGame("kid1.png", dads1, dads2, dads3);
+          kidGame("resources/kid1.png", dads1, dads2, dads3);
           break;
         case 2:
-          kidGame("kid2.png", dads2, dads1, dads3);
+          kidGame("resources/kid2.png", dads2, dads1, dads3);
           break;
         case 3:
-          kidGame("kid3.png", dads3, dads1, dads2);
+          kidGame("resources/kid3.png", dads3, dads1, dads2);
           break;
       }
 
@@ -241,7 +241,7 @@ class Game {
       scoreSaved = true;
     }
 
-    EZ.addImage("ayyyyy.png", windowWidth / 2, 200);
+    EZ.addImage("resources/ayyyyy.png", windowWidth / 2, 200);
     EZRectangle highScoreRect = EZ.addRectangle(4 * windowWidth / 5, windowHeight / 2, 400, 100, Color.blue, true);
     EZ.addText(4 * windowWidth / 5, windowHeight / 2, "Top 10 High Scores", Color.white, 40);
     EZ.addText(windowWidth / 2, windowHeight / 2 + 100, "High Score: " + highScores.getHighScore() + " Dads", Color.black, 40);

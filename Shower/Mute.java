@@ -6,8 +6,8 @@ import java.util.Scanner;
 class Mute {
   private final File muteFile = new File("mute.txt");
   private boolean muted;
-  private final MutedImage mutedImage = new MutedImage("muted.png");
-  private final MutedImage unmutedImage = new MutedImage("unmuted.png");
+  private final MutedImage mutedImage = new MutedImage("resources/muted.png");
+  private final MutedImage unmutedImage = new MutedImage("resources/unmuted.png");
 
   Mute() {
     try {
