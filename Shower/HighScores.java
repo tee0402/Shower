@@ -49,8 +49,30 @@ class HighScores {
       enterNameFrame.add(new JLabel("Please enter your name:"));
       JTextField nameTextField = new JTextField(30);
       nameTextField.addActionListener(e -> {
-        String newHighScoreName = nameTextField.getText();
-        newHighScoreIndex = addHighScore(newHighScoreName, score);
+        String name = nameTextField.getText();
+        if (numHighScores == 0) {
+          names.add(name);
+          highScores.add(score);
+          newHighScoreIndex = 0;
+        } else if (numHighScores < 10 && score <= highScores.get(numHighScores - 1)) {
+          names.add(name);
+          highScores.add(score);
+          newHighScoreIndex = highScores.size() - 1;
+        } else {
+          for (int i = 0; i < numHighScores; i++) {
+            if (score > highScores.get(i)) {
+              names.add(i, name);
+              highScores.add(i, score);
+              if (highScores.size() == 11) {
+                names.remove(10);
+                highScores.remove(10);
+              }
+              newHighScoreIndex = i;
+              break;
+            }
+          }
+        }
+        writeToFiles();
         enterNameFrame.dispose();
       });
       enterNameFrame.add(nameTextField);
@@ -58,38 +80,6 @@ class HighScores {
       enterNameFrame.setBounds(Game.windowWidth / 2 - 250, Game.windowHeight / 2 - 50, 500, 100);
       enterNameFrame.setVisible(true);
     }
-  }
-
-  // Adds a new high score and returns the index
-  private int addHighScore(String name, int score) {
-    int index = -1;
-    int numHighScores = highScores.size();
-    if (numHighScores < 10 || score > highScores.get(numHighScores - 1)) {
-      if (numHighScores == 0) {
-        names.add(name);
-        highScores.add(score);
-        index = 0;
-      } else if (numHighScores < 10 && score <= highScores.get(numHighScores - 1)) {
-        names.add(name);
-        highScores.add(score);
-        index = highScores.size() - 1;
-      } else {
-        for (int i = 0; i < numHighScores; i++) {
-          if (score > highScores.get(i)) {
-            names.add(i, name);
-            highScores.add(i, score);
-            if (highScores.size() == 11) {
-              names.remove(10);
-              highScores.remove(10);
-            }
-            index = i;
-            break;
-          }
-        }
-      }
-      writeToFiles();
-    }
-    return index;
   }
 
   private void writeToFiles() {
