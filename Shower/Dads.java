@@ -1,7 +1,8 @@
 import java.util.ArrayList;
+import java.util.List;
 
 class Dads {
-	private final ArrayList<Dad> dads = new ArrayList<>();
+	private final List<Dad> dads = new ArrayList<>();
 	
 	void add(String fileName, int x, int y) {
 		dads.add(new Dad(fileName, x, y));

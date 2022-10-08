@@ -4,11 +4,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 class HighScores {
-  private final ArrayList<String> names = new ArrayList<>();
-  private final ArrayList<Integer> highScores = new ArrayList<>();
+  private final List<String> names = new ArrayList<>();
+  private final List<Integer> highScores = new ArrayList<>();
   private final File namesFile = new File("names.txt");
   private final File highScoresFile = new File("highscores.txt");
   private int newHighScoreIndex = -1;
