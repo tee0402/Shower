@@ -3,9 +3,14 @@ import java.util.List;
 
 class Dads {
 	private final List<Dad> dads = new ArrayList<>();
+  private final String fileName;
+
+  Dads(String fileName) {
+    this.fileName = fileName;
+  }
 	
-	void add(String fileName, int x, int y) {
-		dads.add(new Dad(fileName, x, y));
+	void add(int x, int y) {
+		dads.add(new Dad(x, y));
 	}
 
   boolean isPointInDads(int x, int y) {
@@ -24,10 +29,10 @@ class Dads {
     dads.clear();
 	}
 
-  private static class Dad {
+  private class Dad {
     private final EZImage dadImage;
 
-    private Dad(String fileName, int x, int y) {
+    private Dad(int x, int y) {
       dadImage = EZ.addImage(fileName, x, y);
     }
 

@@ -6,8 +6,7 @@ import java.util.Scanner;
 class Mute {
   private final File muteFile = new File("mute.txt");
   private boolean muted;
-  private final MutedImage mutedImage = new MutedImage("resources/muted.png");
-  private final MutedImage unmutedImage = new MutedImage("resources/unmuted.png");
+  private final MuteImage muteImage = new MuteImage();
 
   Mute() {
     try {
@@ -27,65 +26,45 @@ class Mute {
     }
   }
 
-  void addCorrectMutedImage() {
-    if (muted) {
-      mutedImage.add();
-    } else {
-      unmutedImage.add();
+  void addImage() {
+    muteImage.add();
+  }
+
+  void checkIfMuteImageClicked(int mouseX, int mouseY, EZSound sceneMusic) {
+    if (muteImage.isPointInImage(mouseX, mouseY)) {
+      muted = !muted;
+      if (sceneMusic != null) {
+        if (muted) {
+          sceneMusic.pause();
+        } else {
+          sceneMusic.play();
+        }
+      }
+      muteImage.toggle();
+      write();
     }
   }
 
-  void checkIfMutedImageClicked(int mouseX, int mouseY, EZSound sceneMusic) {
-    if (mutedImage.isShowing() && mutedImage.isPointInImage(mouseX, mouseY)) {
-      muted = false;
-      mutedImage.remove();
-      unmutedImage.add();
-      if (sceneMusic != null) {
-        sceneMusic.play();
-      }
-      writeToFile();
-    } else if (unmutedImage.isShowing() && unmutedImage.isPointInImage(mouseX, mouseY)) {
-      muted = true;
-      unmutedImage.remove();
-      mutedImage.add();
-      if (sceneMusic != null) {
-        sceneMusic.pause();
-      }
-      writeToFile();
-    }
-  }
-
-  private void writeToFile() {
+  private void write() {
     try {
       FileWriter fileWriter = new FileWriter(muteFile);
-      if (muted) {
-        fileWriter.write("1");
-      }
+      fileWriter.write(muted ? "1" : "");
       fileWriter.close();
     } catch (IOException e) {
       System.out.println("Error writing mute file");
     }
   }
 
-  private static class MutedImage {
-    private final String fileName;
+  private class MuteImage {
     private EZImage image;
 
-    private MutedImage(String fileName) {
-      this.fileName = fileName;
-    }
-
     private void add() {
-      image = EZ.addImage(fileName, 29 * Game.windowWidth / 30, 14 * Game.windowHeight / 15);
+      image = EZ.addImage(muted ? "resources/muted.png" : "resources/unmuted.png", 29 * Game.windowWidth / 30, 14 * Game.windowHeight / 15);
     }
 
-    private void remove() {
+    private void toggle() {
       EZ.removeEZElement(image);
-      image = null;
-    }
-
-    private boolean isShowing() {
-      return image != null;
+      add();
     }
 
     private boolean isPointInImage(int x, int y) {

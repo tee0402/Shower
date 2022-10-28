@@ -1,22 +1,26 @@
 class Timer {
 	private long start;
-	private long timeLimit = 4000;
+	private long timeLimit = 3000;
+
+  long getTimeLimit() {
+    return timeLimit;
+  }
 
   void start() {
 		start = System.currentTimeMillis();
 	}
 	
 	double timeLeft() {
-		return (double) (timeLimit - (System.currentTimeMillis() - start)) / 1000;
+		return timeLimit - (System.currentTimeMillis() - start);
 	}
 	
 	void decrement() {
-    if (timeLimit > 2000) {
-      timeLimit -= 200;
+    if (timeLimit > 1500) {
+      timeLimit -= 100;
 		}
 	}
 	
 	void resetDecrement() {
-		timeLimit = 4000;
+		timeLimit = 3000;
 	}
 }
