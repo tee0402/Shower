@@ -8,7 +8,7 @@ class Dads {
   Dads(String fileName) {
     this.fileName = fileName;
   }
-	
+
 	void add(int x, int y) {
 		dads.add(new Dad(x, y));
 	}
@@ -21,7 +21,7 @@ class Dads {
     }
     return false;
   }
-	
+
 	void removeAll() {
 		for (Dad dad : dads) {
 			dad.remove();

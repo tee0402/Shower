@@ -7,8 +7,8 @@ import java.util.*;
 import java.util.List;
 
 class HighScores {
-  private final List<String> names = new ArrayList<>();
-  private final List<Integer> highScores = new ArrayList<>();
+  private record HighScore(String name, int score) {}
+  private final List<HighScore> highScores = new ArrayList<>();
   private final File highScoresFile = new File("highscores.txt");
   private int newHighScoreIndex = -1;
 
@@ -17,9 +17,9 @@ class HighScores {
       if (highScoresFile.exists() || highScoresFile.createNewFile()) {
         Scanner scanner = new Scanner(highScoresFile);
         while (scanner.hasNextInt()) {
-          highScores.add(scanner.nextInt());
+          int score = scanner.nextInt();
           scanner.skip(" ");
-          names.add(scanner.nextLine());
+          highScores.add(new HighScore(scanner.nextLine(), score));
         }
         scanner.close();
       }
@@ -29,14 +29,14 @@ class HighScores {
   }
 
   int getHighScore() {
-    return highScores.isEmpty() ? 0 : highScores.get(0);
+    return highScores.isEmpty() ? 0 : highScores.get(0).score();
   }
 
   void enterNameIfNewHighScore(int score) {
     newHighScoreIndex = -1;
     // Show enter name prompt if new high score
     int size = highScores.size();
-    if (score > 0 && (size < 10 || score >= highScores.get(9))) {
+    if (score > 0 && (size < 10 || score >= highScores.get(9).score())) {
       JFrame enterNameFrame = new JFrame("You got a new high score!");
       enterNameFrame.setLayout(new FlowLayout());
       enterNameFrame.add(new JLabel("Please enter your name:"));
@@ -44,12 +44,11 @@ class HighScores {
       nameTextField.addActionListener(e -> {
         String name = nameTextField.getText().trim();
         if (name.length() > 0) {
-          int insertionPoint = Collections.binarySearch(highScores, score, Comparator.reverseOrder());
+          HighScore highScore = new HighScore(name, score);
+          int insertionPoint = Collections.binarySearch(highScores, highScore, (x, y) -> y.score() - x.score());
           newHighScoreIndex = insertionPoint < 0 ? - (insertionPoint + 1) : insertionPoint;
-          names.add(newHighScoreIndex, name);
-          highScores.add(newHighScoreIndex, score);
+          highScores.add(newHighScoreIndex, highScore);
           if (size == 10) {
-            names.remove(10);
             highScores.remove(10);
           }
           write();
@@ -66,9 +65,8 @@ class HighScores {
   private void write() {
     try {
       FileWriter fileWriter = new FileWriter(highScoresFile);
-      int size = highScores.size();
-      for (int i = 0; i < size; i++) {
-        fileWriter.write(highScores.get(i) + " " + names.get(i) + "\n");
+      for (HighScore highScore : highScores) {
+        fileWriter.write(highScore.score() + " " + highScore.name() + "\n");
       }
       fileWriter.close();
     } catch (IOException e) {
@@ -85,8 +83,9 @@ class HighScores {
       int y = i * 60 + 210;
       Color color = i == newHighScoreIndex ? Color.red : Color.black;
       EZ.addText(numberX, y, i + 1 + ".", color, 40);
-      EZ.addText(nameX, y, names.get(i), color, 40);
-      EZ.addText(highScoreX, y, highScores.get(i) + " Dads", color, 40);
+      HighScore highScore = highScores.get(i);
+      EZ.addText(nameX, y, highScore.name(), color, 40);
+      EZ.addText(highScoreX, y, highScore.score() + " Dads", color, 40);
     }
     for (int i = size; i < 10; i++) {
       EZ.addText(numberX, i * 60 + 210, i + 1 + ".", Color.black, 40);

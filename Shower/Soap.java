@@ -25,12 +25,12 @@ class Soap {
       soapAppeared = true;
 		}
 	}
-	
+
 	void remove() {
 		EZ.removeEZElement(soapImage);
     soapAppeared = false;
 	}
-	
+
 	boolean isPointInSoap(int x, int y) {
     return soapImage.isPointInElement(x + 30, y + 30) || soapImage.isPointInElement(x - 30, y + 30) || soapImage.isPointInElement(x + 30, y - 30) || soapImage.isPointInElement(x - 30, y - 30);
 	}

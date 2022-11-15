@@ -9,17 +9,17 @@ class Timer {
   void start() {
 		start = System.currentTimeMillis();
 	}
-	
+
 	double timeLeft() {
 		return timeLimit - (System.currentTimeMillis() - start);
 	}
-	
+
 	void decrement() {
     if (timeLimit > 1500) {
       timeLimit -= 100;
 		}
 	}
-	
+
 	void resetDecrement() {
 		timeLimit = 3000;
 	}
